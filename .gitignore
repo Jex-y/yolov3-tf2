@@ -11,6 +11,8 @@
 *.sln
 *.pyproj
 .vs/*
+.vs/VSWorkspaceState.json
+.vs/tasks.vs.json
 
 # Created by https://www.gitignore.io/api/python
 # Edit at https://www.gitignore.io/?templates=python
