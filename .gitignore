@@ -1,6 +1,7 @@
 *.h5
 *.weights
 *.tfrecord
+*.7z
 /checkpoints/*
 /serving/*
 /logs/
