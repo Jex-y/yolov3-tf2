@@ -1,4 +1,4 @@
-*.h5
+﻿*.h5
 *.weights
 *.tfrecord
 *.7z
@@ -8,6 +8,9 @@
 /Untitled.ipynb
 /output.jpg
 /raw_data/*
+*.sln
+*.pyproj
+.vs/*
 
 # Created by https://www.gitignore.io/api/python
 # Edit at https://www.gitignore.io/?templates=python
