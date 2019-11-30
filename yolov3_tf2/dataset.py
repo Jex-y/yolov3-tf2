@@ -1,11 +1,10 @@
 import tensorflow as tf
 
-
 @tf.function
 def transform_targets_for_output(y_true, grid_size, anchor_idxs, classes):
     # y_true: (N, boxes, (x1, y1, x2, y2, class, best_anchor))
     N = tf.shape(y_true)[0]
-
+    
     # y_true_out: (N, grid, grid, anchors, [x, y, w, h, obj, class])
     y_true_out = tf.zeros(
         (N, grid_size, grid_size, tf.shape(anchor_idxs)[0], 6))
@@ -14,6 +13,7 @@ def transform_targets_for_output(y_true, grid_size, anchor_idxs, classes):
 
     indexes = tf.TensorArray(tf.int32, 1, dynamic_size=True)
     updates = tf.TensorArray(tf.float32, 1, dynamic_size=True)
+    output = []
     idx = 0
     for i in tf.range(N):
         for j in tf.range(tf.shape(y_true)[1]):
@@ -28,7 +28,6 @@ def transform_targets_for_output(y_true, grid_size, anchor_idxs, classes):
 
                 anchor_idx = tf.cast(tf.where(anchor_eq), tf.int32)
                 grid_xy = tf.cast(box_xy // (1/grid_size), tf.int32)
-
                 # grid[y][x][anchor] = (tx, ty, bw, bh, obj, class)
                 indexes = indexes.write(
                     idx, [i, grid_xy[1], grid_xy[0], anchor_idx[0][0]])
@@ -38,10 +37,11 @@ def transform_targets_for_output(y_true, grid_size, anchor_idxs, classes):
 
     # tf.print(indexes.stack())
     # tf.print(updates.stack())
-
-    return tf.tensor_scatter_nd_update(
-        y_true_out, indexes.stack(), updates.stack())
-
+    #print(indexes.stack())
+    #print(updates.stack())
+    #print(y_true_out.shape)
+    #print("-"*20)
+    return tf.tensor_scatter_nd_update(y_true_out, indexes.stack(), updates.stack())
 
 def transform_targets(y_train, anchors, anchor_masks, classes):
     y_outs = []
@@ -49,6 +49,7 @@ def transform_targets(y_train, anchors, anchor_masks, classes):
 
     # calculate anchor index for true boxes
     anchors = tf.cast(anchors, tf.float32)
+    y_train = tf.cast(y_train,tf.float32)
     anchor_area = anchors[..., 0] * anchors[..., 1]
     box_wh = y_train[..., 2:4] - y_train[..., 0:2]
     box_wh = tf.tile(tf.expand_dims(box_wh, -2),
@@ -62,9 +63,8 @@ def transform_targets(y_train, anchors, anchor_masks, classes):
 
     y_train = tf.concat([y_train, anchor_idx], axis=-1)
 
-    for anchor_idxs in anchor_masks:
-        y_outs.append(transform_targets_for_output(
-            y_train, grid_size, anchor_idxs, classes))
+    for index in range(len(anchor_masks)):
+        y_outs.append(transform_targets_for_output(y_train, grid_size, anchor_masks[index], classes))
         grid_size *= 2
 
     return tuple(y_outs)
@@ -97,10 +97,10 @@ IMAGE_FEATURE_MAP = {
 }
 
 
-def parse_tfrecord(tfrecord, class_table):
+def parse_tfrecord(tfrecord, class_table, size):
     x = tf.io.parse_single_example(tfrecord, IMAGE_FEATURE_MAP)
     x_train = tf.image.decode_jpeg(x['image/encoded'], channels=3)
-    x_train = tf.image.resize(x_train, (416, 416))
+    x_train = tf.image.resize(x_train, (size, size))
 
     class_text = tf.sparse.to_dense(
         x['image/object/class/text'], default_value='')
@@ -117,14 +117,14 @@ def parse_tfrecord(tfrecord, class_table):
     return x_train, y_train
 
 
-def load_tfrecord_dataset(file_pattern, class_file):
+def load_tfrecord_dataset(file_pattern, class_file, size):
     LINE_NUMBER = -1  # TODO: use tf.lookup.TextFileIndex.LINE_NUMBER
     class_table = tf.lookup.StaticHashTable(tf.lookup.TextFileInitializer(
         class_file, tf.string, 0, tf.int64, LINE_NUMBER, delimiter="\n"), -1)
 
     files = tf.data.Dataset.list_files(file_pattern)
     dataset = files.flat_map(tf.data.TFRecordDataset)
-    return dataset.map(lambda x: parse_tfrecord(x, class_table))
+    return dataset.map(lambda x: parse_tfrecord(x, class_table, size))
 
 
 def load_fake_dataset():
