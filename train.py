@@ -3,8 +3,6 @@ from absl.flags import FLAGS
 import tensorflow as tf
 import numpy as np
 import cv2
-import os
-from PIL import Image
 
 from tensorflow.keras.callbacks import (
     ReduceLROnPlateau,
@@ -22,7 +20,7 @@ import yolov3_tf2.dataset as dataset
 
 flags.DEFINE_string("dataset", "./data/train.tfrecord", "path to dataset")
 flags.DEFINE_string("val_dataset", "./data/val.tfrecord", "path to validation dataset")
-flags.DEFINE_boolean("tiny", False, "yolov3 or yolov3-tiny")
+flags.DEFINE_boolean("tiny", True, "yolov3 or yolov3-tiny")
 flags.DEFINE_string("weights", "./checkpoints/yolov3.tf",
                     "path to weights file")
 flags.DEFINE_string("classes", "./data/class.names", "path to classes file")

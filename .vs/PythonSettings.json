@@ -1,0 +1,4 @@
+{
+  "SuppressEnvironmentCreationPrompt": true,
+  "Interpreter": "CondaEnv|CondaEnv|yolov3-tf2-gpu"
+}

@@ -1,9 +1,9 @@
 import tensorflow as tf
 import numpy as np
 import os
-from PIL import Image
 import io
 import hashlib
+from PIL import Image
 
 def _bytes_feature(value):
   return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
@@ -37,14 +37,14 @@ def make_example(file,data_path="data"):
                 key = hashlib.sha256(encoded_jpg).hexdigest()  
                 encoded_jpg_io = io.BytesIO(encoded_jpg)
                 img =  Image.open(encoded_jpg_io)
-                size = img.size
+                width, height = img.size
                 img.close()
 
-            x = [float(meta[1]) / size[0],
-                 float(meta[3]) / size[0]]
+            x = [float(meta[1]) / width,
+                 float(meta[3]) / width]
 
-            y = [float(meta[2]) / size[1],
-                 float(meta[4]) / size[1]]
+            y = [float(meta[2]) / height,
+                 float(meta[4]) / height]
            
             xmin.append(min(x))
             xmax.append(max(x))
@@ -60,17 +60,17 @@ def make_example(file,data_path="data"):
             plate = meta[5]
 
     tf_example = tf.train.Example(features=tf.train.Features(feature={
-            "image/height"              : _int64_feature(size[1]),
-            "image/width"               : _int64_feature(size[0]),
+            "image/height"              : _int64_feature(height),
+            "image/width"               : _int64_feature(width),
             "image/filename"            : _bytes_feature(image_path.encode("utf8")),
             "image/source_id"           : _bytes_feature(image_path.encode("utf8")),
             "image/key/sha256"          : _bytes_feature(key.encode("utf8")),
             "image/encoded"             : _bytes_feature(encoded_jpg),
             "image/format"              : _bytes_feature("jpg".encode("utf8")),
-            "image/object/bbox/xmin"    : _float_list_feature([x/size[0] for x in xmin]),
-            "image/object/bbox/xmax"    : _float_list_feature([x/size[0] for x in xmax]),
-            "image/object/bbox/ymin"    : _float_list_feature([y/size[1] for y in ymin]),
-            "image/object/bbox/ymax"    : _float_list_feature([y/size[1] for y in ymax]),
+            "image/object/bbox/xmin"    : _float_list_feature(xmin),
+            "image/object/bbox/xmax"    : _float_list_feature(xmax),
+            "image/object/bbox/ymin"    : _float_list_feature(ymin),
+            "image/object/bbox/ymax"    : _float_list_feature(ymax),
             "image/object/class/text"   : _bytes_list_feature(text),
             "image/object/class/label"  : _int64_list_feature(label),
             "image/object/difficult"    : _int64_list_feature(diff),
