@@ -51,9 +51,9 @@ def make_example(file,data_path):
                 img.close()
 
             xmin.append(float(meta[1]) / width)
-            xmax.append(float(meta[3]) + float(meta[1]) / width)
+            xmax.append((float(meta[3]) + float(meta[1])) / width)
             ymin.append(float(meta[2]) / height)
-            ymax.append(float(meta[4]) + float(meta[4]) / height)
+            ymax.append((float(meta[2]) + float(meta[4])) / height)
 
             text.append("Number Plate".encode("utf8"))
             label.append(0)
