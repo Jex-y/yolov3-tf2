@@ -11,7 +11,7 @@ from yolov3_tf2.dataset import transform_images
 from yolov3_tf2.utils import draw_outputs
 
 flags.DEFINE_string('classes', './data/coco.names', 'path to classes file')
-flags.DEFINE_string('weights', './checkpoints/yolov3.tf',
+flags.DEFINE_string('weights', None,
                     'path to weights file')
 flags.DEFINE_boolean('tiny', False, 'yolov3 or yolov3-tiny')
 flags.DEFINE_integer('size', 416, 'resize images to')
@@ -30,7 +30,10 @@ def main(_argv):
     else:
         yolo = YoloV3(classes=FLAGS.num_classes)
 
-    yolo.load_weights(FLAGS.weights)
+    if not FLAGS.weights:
+        yolo.load_weights(tf.train.latest_checkpoint("./checkpoints/")).expect_partial()
+    else:
+        yolo.load_weights(FLAGS.weights).expect_partial()
     logging.info('weights loaded')
 
     class_names = [c.strip() for c in open(FLAGS.classes).readlines()]
@@ -43,7 +46,7 @@ def main(_argv):
     t1 = time.time()
     boxes, scores, classes, nums = yolo(img)
     t2 = time.time()
-    logging.info('time: {}'.format(t2 - t1))
+    logging.info('time: {:.4f}'.format(t2 - t1))
 
     logging.info('detections:')
     for i in range(nums[0]):

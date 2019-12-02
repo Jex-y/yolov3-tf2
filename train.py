@@ -174,16 +174,16 @@ def main(_argv):
             EarlyStopping(patience=3, verbose=1),
             ModelCheckpoint(checkpoint_dir + "/yolov3_train_{epoch}.ckpt",
                             verbose=1, save_weights_only=True),
-            TensorBoard(log_dir=log_dir)
-        ]
-        train_steps= (FLAGS.num_train_samples // FLAGS.batch_size) + (1 if FLAGS.num_train_samples % FLAGS.batch_size != 0 else 0)
-        val_steps = (FLAGS.num_val_samples // FLAGS.batch_size) + (1 if FLAGS.num_val_samples % FLAGS.batch_size != 0 else 0)
+            TensorBoard(log_dir=log_dir)]
+        #train_steps= (FLAGS.num_train_samples // FLAGS.batch_size) + (1 if FLAGS.num_train_samples % FLAGS.batch_size != 0 else 0)
+        #val_steps = (FLAGS.num_val_samples // FLAGS.batch_size) + (1 if FLAGS.num_val_samples % FLAGS.batch_size != 0 else 0)
         history = model.fit(train_dataset,
                     epochs=FLAGS.epochs,
                     callbacks=callbacks,
-                    validation_data=val_dataset,
-                    steps_per_epoch=train_steps,
-                    validation_steps = val_steps)
+                    validation_data=val_dataset)
+                    #steps_per_epoch=train_steps,
+                    #validation_steps = val_steps)
+                    
             
 if __name__ == "__main__":
     try:

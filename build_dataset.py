@@ -4,6 +4,16 @@ import os
 import io
 import hashlib
 from PIL import Image
+from absl import app, flags, logging
+from absl.flags import FLAGS
+
+flags.DEFINE_string("output_path", "data/{}.tfrecord", "Save path for dataset")
+flags.DEFINE_string("data_path","raw_data","Path to raw dataset")
+flags.DEFINE_float("val_split",0.2,"Split of data to be validated")
+flags.DEFINE_integer("seed",0,"Random seed to pick training and validation data")
+
+def main(_argv):
+    build(FLAGS.output_path,data_path=FLAGS.data_path,val_split=FLAGS.val_split,seed=FLAGS.seed)
 
 def _bytes_feature(value):
   return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
@@ -20,7 +30,7 @@ def _int64_feature(value):
 def _int64_list_feature(value):
   return tf.train.Feature(int64_list=tf.train.Int64List(value=value))
 
-def make_example(file,data_path="data"):
+def make_example(file,data_path):
     with open(data_path + "\\" + file,"r") as f:
             data = f.read().split("\n")
 
@@ -40,16 +50,10 @@ def make_example(file,data_path="data"):
                 width, height = img.size
                 img.close()
 
-            x = [float(meta[1]) / width,
-                 float(meta[3]) / width]
-
-            y = [float(meta[2]) / height,
-                 float(meta[4]) / height]
-           
-            xmin.append(min(x))
-            xmax.append(max(x))
-            ymin.append(min(y))
-            ymax.append(max(y))
+            xmin.append(float(meta[1]) / width)
+            xmax.append(float(meta[3]) + float(meta[1]) / width)
+            ymin.append(float(meta[2]) / height)
+            ymax.append(float(meta[4]) + float(meta[4]) / height)
 
             text.append("Number Plate".encode("utf8"))
             label.append(0)
@@ -81,7 +85,7 @@ def make_example(file,data_path="data"):
     return tf_example
 
 
-def build(output_path,data_path="data",val_split=0.2,seed=0):
+def build(output_path,data_path,val_split,seed):
     np.random.seed(seed)
     files = [ x for x in os.listdir(data_path) if x.split(".")[-1] == "txt"]
     val = np.random.rand(len(files))
@@ -102,6 +106,9 @@ def build(output_path,data_path="data",val_split=0.2,seed=0):
         writer.close()
         print("")
         count += 1
-
+            
 if __name__ == "__main__":
-    build(".\\data\\{}.tfrecord",data_path="raw_data",val_split=0.2)
+    try:
+        app.run(main)
+    except SystemExit:
+        pass
