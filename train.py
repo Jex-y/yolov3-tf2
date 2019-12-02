@@ -20,7 +20,7 @@ import yolov3_tf2.dataset as dataset
 
 flags.DEFINE_string("dataset", "./data/train.tfrecord", "path to dataset")
 flags.DEFINE_string("val_dataset", "./data/val.tfrecord", "path to validation dataset")
-flags.DEFINE_boolean("tiny", True, "yolov3 or yolov3-tiny")
+flags.DEFINE_boolean("tiny", False, "yolov3 or yolov3-tiny")
 flags.DEFINE_string("weights", "./checkpoints/yolov3.tf",
                     "path to weights file")
 flags.DEFINE_string("classes", "./data/class.names", "path to classes file")
@@ -133,7 +133,7 @@ def main(_argv):
                 grads = tape.gradient(total_loss, model.trainable_variables)
                 optimizer.apply_gradients(
                     zip(grads, model.trainable_variables))
-
+                print(tf.executing_eagerly())
                 logging.info("{}_train_{}, {}, {}".format(
                     epoch, batch, total_loss.numpy(),
                     list(map(lambda x: np.sum(x.numpy()), pred_loss))))
@@ -177,6 +177,7 @@ def main(_argv):
             TensorBoard(log_dir=log_dir)]
         #train_steps= (FLAGS.num_train_samples // FLAGS.batch_size) + (1 if FLAGS.num_train_samples % FLAGS.batch_size != 0 else 0)
         #val_steps = (FLAGS.num_val_samples // FLAGS.batch_size) + (1 if FLAGS.num_val_samples % FLAGS.batch_size != 0 else 0)
+        
         history = model.fit(train_dataset,
                     epochs=FLAGS.epochs,
                     callbacks=callbacks,
