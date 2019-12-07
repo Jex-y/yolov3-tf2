@@ -2,6 +2,7 @@
 *.weights
 *.tfrecord
 *.7z
+*.zip
 /checkpoints/*
 /serving/*
 /logs/

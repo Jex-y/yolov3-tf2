@@ -49,11 +49,12 @@ def make_example(file,data_path):
                 img =  Image.open(encoded_jpg_io)
                 width, height = img.size
                 img.close()
+            bbox = [float(meta[i]) for i in range(1,5)]
 
-            xmin.append(float(meta[1]) / width)
-            xmax.append((float(meta[3]) + float(meta[1])) / width)
-            ymin.append(float(meta[2]) / height)
-            ymax.append((float(meta[2]) + float(meta[4])) / height)
+            xmin.append(bbox[0] / width)
+            xmax.append((bbox[0] + bbox[2]) / width)
+            ymin.append(bbox[1] / height)
+            ymax.append((bbox[1] + bbox[3]) / height)
 
             text.append("Number Plate".encode("utf8"))
             label.append(0)
