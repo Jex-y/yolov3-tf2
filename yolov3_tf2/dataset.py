@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-@tf.function
+#@tf.function
 def transform_targets_for_output(y_true, grid_size, anchor_idxs, classes):
     # y_true: (N, boxes, (x1, y1, x2, y2, class, best_anchor))
     N = tf.shape(y_true)[0]
@@ -111,6 +111,12 @@ def parse_tfrecord(tfrecord, class_table, size):
                         tf.sparse.to_dense(x['image/object/bbox/ymax']),
                         labels], axis=1)
 
+    print(
+        x['image/object/bbox/xmin'],
+        x['image/object/bbox/xmax'],
+        x['image/object/bbox/ymin'],
+        x['image/object/bbox/ymax'])
+    exit()
     paddings = [[0, 100 - tf.shape(y_train)[0]], [0, 0]]
     y_train = tf.pad(y_train, paddings)
 

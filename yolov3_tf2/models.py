@@ -267,6 +267,8 @@ def YoloLoss(anchors, classes=80, ignore_thresh=0.5):
         # y_true: (batch_size, grid, grid, anchors, (x1, y1, x2, y2, obj, cls))
         true_box, true_obj, true_class_idx = tf.split(
             y_true, (4, 1, 1), axis=-1)
+        print(np.nonzero(true_box.numpy))
+        exit()
         true_xy = (true_box[..., 0:2] + true_box[..., 2:4]) / 2
         true_wh = true_box[..., 2:4] - true_box[..., 0:2]
 

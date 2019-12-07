@@ -11,6 +11,7 @@ flags.DEFINE_string("output_path", "data/{}.tfrecord", "Save path for dataset")
 flags.DEFINE_string("data_path","raw_data","Path to raw dataset")
 flags.DEFINE_float("val_split",0.2,"Split of data to be validated")
 flags.DEFINE_integer("seed",0,"Random seed to pick training and validation data")
+flags.DEFINE_boolean("verbose",1,"Verbositiy of the output")
 
 def main(_argv):
     build(FLAGS.output_path,data_path=FLAGS.data_path,val_split=FLAGS.val_split,seed=FLAGS.seed)
@@ -63,7 +64,7 @@ def make_example(file,data_path):
             view.append("back".encode("utf8")) # View of the object e.g. behind or infront 
 
             plate = meta[5]
-
+    print([xmin,xmax,ymin,ymax])
     tf_example = tf.train.Example(features=tf.train.Features(feature={
             "image/height"              : _int64_feature(height),
             "image/width"               : _int64_feature(width),
@@ -103,7 +104,8 @@ def build(output_path,data_path,val_split,seed):
             writer.write(tf_example.SerializeToString())
             done += 1
             ratio = done/num
-            print("\r{} dataset {:.2f}% Complete\t|{}{}{}|\t".format("training" if count == 0 else "validation",ratio*100,"\u2588"*int(ratio*size),">" if ratio < 1 else "\u2588"," "*int((1-ratio)*size)),end="")
+            if FLAGS.verbose > 0:
+                print("\r{} dataset {:.2f}% Complete\t|{}{}{}|\t".format("training" if count == 0 else "validation",ratio*100,"\u2588"*int(ratio*size),">" if ratio < 1 else "\u2588"," "*int((1-ratio)*size)),end="")
         writer.close()
         print("")
         count += 1
