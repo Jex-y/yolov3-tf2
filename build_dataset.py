@@ -49,6 +49,7 @@ def make_example(file,data_path):
                 encoded_jpg_io = io.BytesIO(encoded_jpg)
                 img =  Image.open(encoded_jpg_io)
                 width, height = img.size
+                
                 img.close()
             bbox = [float(meta[i]) for i in range(1,5)]
 
@@ -64,7 +65,6 @@ def make_example(file,data_path):
             view.append("back".encode("utf8")) # View of the object e.g. behind or infront 
 
             plate = meta[5]
-    print([xmin,xmax,ymin,ymax])
     tf_example = tf.train.Example(features=tf.train.Features(feature={
             "image/height"              : _int64_feature(height),
             "image/width"               : _int64_feature(width),

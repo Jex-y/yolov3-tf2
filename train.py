@@ -130,8 +130,8 @@ def main(_argv):
                         for output, label, loss_fn in zip(outputs, labels, loss):
                             true_box, true_obj, true_class_idx = tf.split(
                                 label, (4, 1, 1), axis=-1)
-                            print(np.nonzero(true_box.numpy))
-                            exit()
+                            #print(np.nonzero(true_box.numpy))
+                            #exit()
                             pred_loss.append(loss_fn(label, output))
                         total_loss = tf.reduce_sum(pred_loss) + regularization_loss
 
