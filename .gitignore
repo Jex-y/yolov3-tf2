@@ -12,6 +12,8 @@
 *.sln
 *.pyproj
 **/.vs/
+**/raw_test_data/
+**/notebook/
 # Created by https://www.gitignore.io/api/python
 # Edit at https://www.gitignore.io/?templates=python
 
